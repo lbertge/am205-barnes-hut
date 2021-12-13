@@ -19,20 +19,21 @@ def step(x,v,m,dt, d=3):
 	return x,v
 
 def main():
-	n = 5
-	dt = 1e7
+	n = 2
+	dt = 1e8
 	d = 2
 
 	m  = np.random.rand(n) * 1e12
 	x0 = np.random.rand(n, d) * 1e13
-	v0 = np.random.rand(n, d)
+	v0 = np.random.rand(n, d) * 1
+	# v0 = np.zeros((n,d))
 	x = x0
 	v = v0
 	result = [x]
 	T = [0]
 	t = 0
 
-	for i in range(100000):
+	for i in range(1000000):
 		x, v = step(x, v,m, dt, d = d)
 		t += dt
 		result.append(x.copy())
@@ -41,7 +42,7 @@ def main():
 
 	plt.scatter(result[:,0, 0], result[:,0, 1])
 	plt.scatter(result[:,1, 0], result[:,1, 1])
-	plt.scatter(result[:,2, 0], result[:,2, 1])
+	# plt.scatter(result[:,2, 0], result[:,2, 1])
 
 	plt.show()
 
