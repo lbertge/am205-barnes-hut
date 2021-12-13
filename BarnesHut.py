@@ -221,14 +221,15 @@ def main():
 	itters = 20000
 	bodies = createBodies(n)
 	
-	result = np.zeros((n,itters,2))
-	for j in range(itters):
-		for i, body in enumerate(bodies):
+	result = np.zeros((itters,n,2))
+	for i in range(itters):
+		for j, body in enumerate(bodies):
 			result[i, j, :] = [body.px, body.py]
 			step(bodies)
 	for i in range(n):
-		plt.scatter(result[i, :, 0], result[i, :, 1])
+		plt.scatter(result[:, i, 0], result[:, i, 1])
 
+	print(result)
 
 	plt.show()
 
