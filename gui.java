@@ -12,7 +12,7 @@ class ParticleSystem {
 
   void addParticle() {
     particles.add(new Particle(origin));
-  }
+  } 
   void addParticle(float x, float y){
      particles.add(new Particle(new PVector(x, y))); 
   }
