@@ -32,12 +32,14 @@ class Body:
         self.ay = self.fy/self.m
 
     def update_velocity(self, dt):
+        self.old_vx = self.vx
+        self.old_vy = self.vy
         self.vx += dt * self.ax
         self.vy += dt * self.ay
 
     def update_position(self, dt):
-        self.x += dt * self.vx
-        self.y += dt * self.vy
+        self.x += dt * self.old_vx
+        self.y += dt * self.old_vy
 
 
 def step(bodies, dt):

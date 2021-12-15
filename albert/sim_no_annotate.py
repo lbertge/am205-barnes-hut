@@ -12,6 +12,44 @@ def parse_body(body_data):
 def getImage(fname):
     return OffsetImage(plt.imread(fname))
 
+def simulate_leapfrog_data_only(infile, outfile, dt):
+    bodies = []
+    with open(infile, 'r') as f:
+        n = int(f.readline())
+        r = float(f.readline())
+        # print(n, r)
+        for i in range(n):
+            bodies.append(parse_body(f.readline()))
+
+    fig, ax = plt.subplots()
+    ims = []
+    artists = []
+    for body in bodies:
+        artist = ax.scatter(body.x, body.y, c='blue')
+        # ax.add_artist(artist)
+        artists.append(artist)
+    ims.append(artists)
+
+    # dt = 25000
+
+    for i in range(500):
+        x, y = leapfrog_step(bodies, dt)
+        
+        artists = []
+        for j, body in enumerate(bodies):
+            artist = ax.scatter(x[j], y[j], c='blue')
+            # ax.add_artist(artist)
+            artists.append(artist)
+        ims.append(artists)
+
+    plt.xlim([-r, r])
+    plt.ylim([-r, r])
+    ani = animation.ArtistAnimation(fig, ims, interval=10, blit=True,
+            repeat_delay=10000)
+
+    ani.save(f"{outfile}_leapfrog.mp4")
+    # plt.show()
+
 def simulate_leapfrog(infile, outfile, dt):
     bodies = []
     with open(infile, 'r') as f:
@@ -25,10 +63,9 @@ def simulate_leapfrog(infile, outfile, dt):
     ims = []
     artists = []
     for body in bodies:
-        img = getImage(body.fname)
-        ab = AnnotationBbox(img, (body.x, body.y), frameon=False)
-        ax.add_artist(ab)
-        artists.append(ab)
+        artist = ax.scatter(body.x, body.y, c='blue')
+        # ax.add_artist(artist)
+        artists.append(artist)
     ims.append(artists)
 
     # dt = 25000
@@ -38,10 +75,9 @@ def simulate_leapfrog(infile, outfile, dt):
         
         artists = []
         for j, body in enumerate(bodies):
-            img = getImage(body.fname)
-            ab = AnnotationBbox(img, (x[j], y[j]), frameon=False)
-            ax.add_artist(ab)
-            artists.append(ab)
+            artist = ax.scatter(x[j], y[j], c='blue')
+            # ax.add_artist(artist)
+            artists.append(artist)
         ims.append(artists)
 
     plt.xlim([-r, r])
