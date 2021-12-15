@@ -5,7 +5,7 @@ from datetime import datetime
 
 G = 6.67e-11
 
-epsilon = 1e0
+epsilon = 0##1e0
 
 
 def step(x,v,m,dt, d=3):
@@ -34,15 +34,15 @@ def writeOutput(result):
 	np.savetxt(f'output/result-{dateString}.csv', result, delimiter=',')
 
 def main():
-	n = 5
-	dt = 1e4
+	n = 6
+	dt = 1e2
 	d = 3
 
 	m  = np.ones(n) * 10
 
-	m = np.array([1.9891e30, 3.285e23, 4.867e24, 5.972e24, 6.39e23])
-	x= np.array([[0,0,0], [41.5e6,0,0], [67e6,0,0], [91e6,0,0], [145e6,0,0]]) * 1609.34
-	v = np.array([[0,0,0], [0, -47.36,0], [0, -35.26,0], [0, -30,0], [0, -24,0]]) * 1000
+	m = np.array([1.9891e30, 3.285e23, 4.867e24, 5.972e24, 7.34767e22 , 6.39e23])
+	x= np.array([[0,0,0], [41.5e6,0,0], [67e6,0,0], [91e6,0,0], [91e6 +238900,0,0], [145e6,0,0]]) * 1609.34
+	v = np.array([[0,0,0], [0, 47.36,0], [0, 35.26,0], [0, 30,0],[0, 30 + 0.97, 0], [0, 24,0]]) * 1000
 	# # m[0] = 1e3
 	# x0 = np.random.rand(n, d) * 1e4
 
@@ -72,7 +72,7 @@ def main():
 	T = [0]
 	t = 0
 
-	for i in range(100000):
+	for i in range(1000000):
 		x, v = step(x, v, m, dt, d)
 		t += dt
 		result.append(x.copy())
@@ -85,6 +85,9 @@ def main():
 	plt.scatter(result[:, 1, 0], result[:, 1, 1])
 	plt.scatter(result[:, 2, 0], result[:, 2, 1])
 	plt.scatter(result[:, 3, 0], result[:, 3, 1])
+	plt.scatter(result[:, 4, 0], result[:, 4, 1])
+	plt.scatter(result[:, 5, 0], result[:, 5, 1])
+	#plt.scatter(result[:, 4, 0], result[:, 4, 1])
 	# ax = fig.add_subplot(projection='3d')
 
 	# ax.scatter(result[10000:,0, 0], result[10000:,0, 1], result[10000:,0, 2])
