@@ -11,8 +11,9 @@ def step(x,v,m,dt, d=3):
         for j in range(len(x)):
             if i != j:
                 dv += -G * m[j] * (x[i] - x[j]) / (np.linalg.norm(x[i] - x[j]) ** d) 
-        x[i] += v[i] * dt
         v[i] += dv * dt
+        x[i] += v[i] * dt
+
 
 
     return x,v
