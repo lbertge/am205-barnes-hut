@@ -67,7 +67,8 @@ GLWidget::GLWidget(QWidget *parent)
     index = 0;
     setFixedSize(1000, 1000);
     setAutoFillBackground(false);
-    QFile file("/Users/alexkashi/Documents/Processing/barnesHut/result2.csv");
+//    QFile file("/Users/alexkashi/Documents/Processing/barnesHut/result2.csv");
+       QFile file("/Users/alexkashi/Harvard/AM205/am205-barnes-hut/output/result-2021-12-14-20-38.csv");
     if(!file.open(QIODevice::ReadOnly)) {
 //            QDebug() << "Error reading file";
     }
@@ -86,7 +87,7 @@ GLWidget::GLWidget(QWidget *parent)
             std::istringstream StrToFloat2(pieces.at(i+1).toStdString());
             StrToFloat2 >> tmp_y;
 
-            timePoint.append(QPointF(400 + tmp_x / 1e11,200 + tmp_y / 1e11));
+            timePoint.append(QPointF(400 + tmp_x ,200 + tmp_y ));
         }
         data.append(timePoint);
     }
@@ -96,7 +97,7 @@ GLWidget::GLWidget(QWidget *parent)
 void GLWidget::animate()
 {
     elapsed = (elapsed + qobject_cast<QTimer*>(sender())->interval()) % 1000;
-    index +=10;
+    index +=5;
     update();
 }
 
@@ -109,7 +110,7 @@ void GLWidget::paintEvent(QPaintEvent *event)
     painter.setBrush(Qt::white);
     painter.fillRect(event->rect(), QBrush(QColor(0, 0, 0)));
     for(int i = std::max(0, index - 50); i < index; i++){
-        for(QPointF point : data[i]){
+        for(QPointF point : data[i % data.length()]){
             painter.setBrush(QBrush(QColor(255,255,255)));
             painter.drawEllipse(point, 3,3);
         }

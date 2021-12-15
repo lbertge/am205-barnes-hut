@@ -49,7 +49,7 @@ def simulate_leapfrog():
     ani = animation.ArtistAnimation(fig, ims, interval=10, blit=True,
             repeat_delay=10000)
 
-    ani.save("movie_leapfrog.mp4")
+   # ani.save("movie_leapfrog.mp4")
 
     plt.show()
 
@@ -114,17 +114,17 @@ def simulate_naive():
     ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
             repeat_delay=10000)
 
-    ani.save("movie.mp4")
+    #ani.save("movie.mp4")
 
     plt.show()
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Run simulation for different algorithms')
-    parser.add_argument('--alg', dest='algorithm', required=True, type=str, choices=['naive', 'leapfrog'])
-    args = parser.parse_args()
-    print(args.algorithm)
-    if args.algorithm == 'naive':
-        simulate_naive()
-    else:
-        simulate_leapfrog()
+    # parser = argparse.ArgumentParser(description='Run simulation for different algorithms')
+    # parser.add_argument('--alg', dest='algorithm', required=True, type=str, choices=['naive', 'leapfrog'])
+    # args = parser.parse_args()
+    # print(args.algorithm)
+    # if args.algorithm == 'naive':
+    #     simulate_naive()
+    # else:
+    simulate_leapfrog()
 
