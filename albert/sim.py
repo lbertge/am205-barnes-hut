@@ -50,7 +50,7 @@ def simulate_leapfrog(infile, outfile, dt):
             repeat_delay=10000)
 
     ani.save(f"{outfile}_leapfrog.mp4")
-    # plt.show()
+
 
 def simulate_naive(infile, outfile, dt):
     bodies = []
@@ -129,6 +129,5 @@ if __name__ == '__main__':
         simulate_naive(args.datafile, args.outfile, args.timestep)
     else:
         simulate_leapfrog(args.datafile, args.outfile, args.timestep)
-
 
 

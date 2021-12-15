@@ -33,6 +33,8 @@
 #include <QtDataVisualization/q3dscatter.h>
 #include <QtDataVisualization/qabstract3dseries.h>
 #include <QtGui/QFont>
+#include <QColor>
+#include <QtGlobal>
 
 class ScatterDataModifier : public QObject
 {
@@ -79,6 +81,7 @@ private:
     int itterCount;
     QVector<QVector<QVector3D>> data;
     QScatterDataArray *dataArray2;
+    QVector<Qt::GlobalColor> colors;
 };
 
 #endif

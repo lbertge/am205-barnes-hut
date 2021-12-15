@@ -72,9 +72,20 @@ ScatterDataModifier::ScatterDataModifier(Q3DScatter *scatter)
 
     index = 0;
 
+    colors.push_back(Qt::yellow);
+
+    colors.push_back(Qt::red);
+
+    colors.push_back(Qt::darkYellow);
+
+    colors.push_back(Qt::blue);
+    colors.push_back(Qt::white);
+
+    colors.push_back(Qt::darkRed);
 
 //    QFile file("/Users/alexkashi/Documents/Processing/barnesHut/result2.csv");
-    QFile file("/Users/alexkashi/Harvard/AM205/am205-barnes-hut/output/result-2021-12-14-22-31.csv");
+//    QFile file("/Users/alexkashi/Harvard/AM205/am205-barnes-hut/output/result-2021-12-14-22-31.csv");
+        QFile file("C://Users//AlexKashi//Harvard//AM205//am205-barnes-hut//output//result-2021-12-15-03-49.csv");
     if(!file.open(QIODevice::ReadOnly)) {
 //            QDebug() << "Error reading file";
     }
@@ -132,6 +143,14 @@ ScatterDataModifier::ScatterDataModifier(Q3DScatter *scatter)
     m_graph->axisX()->setLabelFormat(" ");
     m_graph->axisY()->setLabelFormat(" ");
     m_graph->axisZ()->setLabelFormat(" ");
+
+    m_graph->addSeries(new QScatter3DSeries);
+    m_graph->addSeries(new QScatter3DSeries);
+    m_graph->addSeries(new QScatter3DSeries);
+    m_graph->addSeries(new QScatter3DSeries);
+    m_graph->addSeries(new QScatter3DSeries);
+
+
 //    dataArray = new QScatterDataArray;
 //    addData();
     //! [3]
@@ -171,17 +190,33 @@ void ScatterDataModifier::changeTheme(int theme)
 void ScatterDataModifier::animate()
 {
 
-    QScatterDataArray *dataArray = new QScatterDataArray;
-    dataArray->resize(bodyCount);
-    QScatterDataItem *ptrToDataArray = &dataArray->first();
 
 
     for (int i = 0; i < bodyCount; i++) {
-        ptrToDataArray->setPosition(data[index % data.length()][i]);
-        ptrToDataArray++;
+        QScatterDataArray *dataArray = new QScatterDataArray;
+
+        *dataArray << data[index % data.length()][i];
+        dataArray->resize(1);
+         m_graph->seriesList().at(i)->dataProxy()->resetArray(dataArray);
+            m_graph->seriesList().at(i)->setMeshSmooth(true);
+        m_graph->seriesList().at(i)->setItemSize(0.1f);
+        m_graph->seriesList().at(i)->setBaseColor(colors[i% colors.length()]);
+
+//        QScatterDataItem *ptrToDataArray = &dataArray->first();
+//           scatter.seriesList().at(1)->setBaseColor(Qt::green);
+
+//        ptrToDataArray->setPosition(data[index % data.length()][i]);
+//        ptrToDataArray++;
     }
-    m_graph->seriesList().at(0)->dataProxy()->resetArray(dataArray);
-    index +=25;
+//    m_graph->seriesList().at(0)->dataProxy()->resetArray(dataArray);
+    index +=500;
+
+//    QLinearGradient linearGrad(QPointF(100, 100), QPointF(200, 200));
+//    linearGrad.setColorAt(0, Qt::blue);
+//    linearGrad.setColorAt(1, Qt::red);
+
+//    m_graph->seriesList().at(0)->setBaseGradient(linearGrad);
+//    m_graph->seriesList().at(0)->setColorStyle(Q3DTheme::ColorStyle::ColorStyleObjectGradient);
 
 }
 void ScatterDataModifier::changePresetCamera()
