@@ -5,10 +5,11 @@ from datetime import datetime
 import sys
 sys.setrecursionlimit(2000)
 
-G = 0.1
+G = 0.04
 theta = 0.5
-dt = 1e-4
-num_bodies = 25
+dt = 1e-3
+num_bodies = 2500
+epsilon = 0.1
 L = 1
 
 def distance(bod1, bod2):
@@ -19,13 +20,13 @@ def distance(bod1, bod2):
 def force(bod1, bod2):
     x1, y1, m1 = bod1.px, bod1.py, bod1.mass
     x2, y2, m2 = bod2.px, bod2.py, bod2.mass
-    return G*m1*m2/distance(bod1,bod2)**2
+    return G*m1*m2/(distance(bod1,bod2)**2 + epsilon)
 
 def x_component(bod1, bod2):
-    return (bod1.px-bod2.px)/distance(bod1, bod2)
+    return (bod1.px-bod2.px)/(distance(bod1, bod2) + epsilon)
 
 def y_component(bod1, bod2):
-    return (bod1.py-bod2.py)/distance(bod1, bod2)
+    return (bod1.py-bod2.py)/(distance(bod1, bod2) + epsilon)
 
 class Body:
     def __init__(self, mass, px, py, vx, vy):
@@ -130,7 +131,7 @@ class Node:
         # if this node is an internal node
         else:
             s = self.xleft-self.xright
-            d = ((self.CoMx - body.px)**2+(self.CoMy - body.py)**2)**0.5
+            d = ((self.CoMx - body.px)**2+(self.CoMy - body.py)**2)**0.5 + epsilon
             
             # if aggregate condition is met, aggregate
             if s/d < theta:
@@ -145,6 +146,8 @@ class Node:
                 self.botleft.calculate_force(body)
                 self.botright.calculate_force(body)
                     
+                
+            
                 
                     
 def step(bodies):
@@ -180,13 +183,13 @@ def main():
     bodies = []
     for i in range(num_bodies):
         j = np.random.rand(5)
-        R = np.random.uniform(0, L/4);
+        R = np.random.uniform(0, L/4.0);
         theta = np.random.uniform(0, 2*np.pi);
         x =  R*np.cos(theta);
         y =  0.25*R*np.sin(theta);
         R_prim = np.sqrt((x - L/2) ** 2 + (y - L/2) ** 2);
-        u = -50*R_prim*np.sin(theta);
-        v = 50*R_prim*np.cos(theta);
+        u = -5*R_prim*np.sin(theta);
+        v = 5*R_prim*np.cos(theta);
         bodies.append(Body(1,x,y, u, v))
 
     root = Node(-L,L,-L,L)
@@ -199,7 +202,7 @@ def main():
     for i in range(num_iters):
         
         for body in bodies:
-            root.calculate_force(body)
+            root.calculate_force(body, True)
         step(bodies)
         
         this_pos = []
@@ -212,10 +215,59 @@ def main():
             for body in bodies:
                 root.add_body(body)
         except:
-             pass
-         #   return np.array(pos_hist)
-    # print(pos_hist)
+            print("Failed")
+            pass
+            return np.array(pos_hist)
+    
     return np.array(pos_hist)
+
+def plot_trajectories(pos_hist):
+    for i in range(num_bodies):
+        plt.scatter(pos_hist[:,i,0], pos_hist[:,i,1], s = 0.1)
+
+# def main():
+#     num_iters = 1000
+#     pos_hist = []
+    
+#     bodies = []
+#     for i in range(num_bodies):
+#         j = np.random.rand(5)
+#         R = np.random.uniform(0, L/4);
+#         theta = np.random.uniform(0, 2*np.pi);
+#         x =  R*np.cos(theta);
+#         y =  0.25*R*np.sin(theta);
+#         R_prim = np.sqrt((x - L/2) ** 2 + (y - L/2) ** 2);
+#         u = 0#-1*R_prim*np.sin(theta);
+#         v = 0#1*R_prim*np.cos(theta);
+#         bodies.append(Body(1,x,y, u, v))
+
+#     root = Node(-L,L,-L,L)
+#     this_pos = []
+#     for body in bodies:
+#         this_pos.append([body.px, body.py])
+#         root.add_body(body)
+#     pos_hist.append(this_pos)
+    
+#     for i in range(num_iters):
+        
+#         for body in bodies:
+#             root.calculate_force(body)
+#         step(bodies)
+        
+#         this_pos = []
+#         for body in bodies:
+#             this_pos.append([body.px, body.py])
+#         pos_hist.append(this_pos)
+#         print(i)
+#         try:
+#             root = Node(-L,L,-L,L)
+#             for body in bodies:
+#                 root.add_body(body)
+#         except:
+#              pass
+#          #   return np.array(pos_hist)
+#     # print(pos_hist)
+#     return np.array(pos_hist)
 
 
 def plot_trajectories(pos_hist):
