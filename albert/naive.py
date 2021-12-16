@@ -59,9 +59,13 @@ def step(bodies, dt):
     # return a list of positions, so we can plot it
     x = []
     y = []
+    vx = []
+    vy = []
     for i in range(len(bodies)):
         x.append(bodies[i].x)
         y.append(bodies[i].y)
+        vx.append(bodies[i].vx)
+        vy.append(bodies[i].vy)
     
-    return x, y
+    return x, y, vx, vy
 
