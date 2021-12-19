@@ -25,10 +25,8 @@ Window::Window()
 {
     setWindowTitle(tr("Barnes Hut"));
     qputenv("QSG_RHI_BACKEND", "opengl");
-    //! [0]
     Q3DScatter *graph = new Q3DScatter();
     QWidget *container = QWidget::createWindowContainer(graph);
-    //! [0]
 
     if (!graph->hasContext()) {
         QMessageBox msgBox;
@@ -82,7 +80,7 @@ Window::Window()
     itemStyleList->setCurrentIndex(0);
 
     QPushButton *cameraButton = new QPushButton(widget);
-    cameraButton->setText(QStringLiteral("Change camera preset"));
+    cameraButton->setText(QStringLiteral("Reset"));
 
     QPushButton *itemCountButton = new QPushButton(widget);
     itemCountButton->setText(QStringLiteral("Toggle item count"));
@@ -133,10 +131,11 @@ Window::Window()
     //!
     QTimer *timer = new QTimer(container);
     connect(timer, &QTimer::timeout, modifier, &ScatterDataModifier::animate);
-    timer->start(5);
+    timer->start(20);
 
     //! [6]
-
+    QObject::connect(cameraButton, &QPushButton::clicked, modifier,
+                     &ScatterDataModifier::reset);
     QObject::connect(labelButton, &QPushButton::clicked, modifier,
                      &ScatterDataModifier::changeLabelStyle);
 

@@ -9,14 +9,17 @@ sys.setrecursionlimit(2000)
 
 theta = 0.5
 dt = 1e-3
-num_bodies = 3000
-G = 100 / num_bodies / 3 + 3# + 3
+num_bodies = 60000
+num_iters = 1000
+groups = 3
+G = 100 / num_bodies / groups +  groups# + 3
 epsilon = 1.0
 L = 1.0
 B = 1000
 
-leapfrog = False
-fileName = "../output/initial-2000n-3000b-3g-e.csv"
+leapfrog = True
+fileName = None
+# fileName = "../output/initial-2000n-6000b-2g.csv"
 def distance(bod1, bod2):
     x1, y1, z1 = bod1.px, bod1.py, bod1.pz
     x2, y2, z2 = bod2.px, bod2.py, bod2.pz
@@ -49,12 +52,14 @@ class Body:
         self.fx = 0
         self.fy = 0
         self.fz = 0
+        self.collidedWidth = []
     
     def zero_forces(self, by_root = False):
         if by_root:
             self.fx = 0
             self.fy = 0
             self.fz = 0
+            self.colidedWith = []
 
 class Node:
     def __init__(self, xleft, xright, ybot, ytop, zfront, zback):
@@ -229,14 +234,13 @@ def loadInitial(fileName):
             bodies.append(Body(float(line[0]), float(line[1]), float(line[2]), float(line[3]), float(line[4]), float(line[5]), float(line[6])))
     return bodies
 def main():
-    num_iters = 2000
     pos_hist = []
     
     bodies = []
     if fileName is not None:
         bodies = loadInitial(fileName)
     else:
-        for i in range(int(num_bodies / 3)):
+        for i in range(int(num_bodies / groups)):
             R = 10*np.random.uniform(0, L/4.0);
             theta = np.random.uniform(0, 2*np.pi);
             x =  R*np.cos(theta);
@@ -249,41 +253,42 @@ def main():
             bodies.append(Body(5,x,y,z, vx, vy, vz))
         bodies.append(Body(1e2,.01,.01,.01, 0, 0, 0))
 
-        for i in range(int(num_bodies / 3)):
-            R = 10*np.random.uniform(0, L/4.0);
-            theta = np.random.uniform(0, 2*np.pi);
-            x = R*np.cos(theta);
-            y = 0.25*R*np.sin(theta);
-            z = np.random.normal(0, L/32)
-            R_prim = np.sqrt((x - L/2.0) ** 2 + (y - L/2.0) ** 2);
-            
-            x += 20 * L / 2
-            y += 20 * L / 4
-            z += 20 * L / 8
+        if groups > 1:
+            for i in range(int(num_bodies / groups)):
+                R = 10*np.random.uniform(0, L/4.0);
+                theta = np.random.uniform(0, 2*np.pi);
+                x = R*np.cos(theta);
+                y = 0.25*R*np.sin(theta);
+                z = np.random.normal(0, L/32)
+                R_prim = np.sqrt((x - L/2.0) ** 2 + (y - L/2.0) ** 2);
+                
+                x += 20 * L / 2
+                y += 20 * L / 4
+                z += 20 * L / 8
 
-            vx = -20*R_prim*np.sin(theta);
-            vy = 20*R_prim*np.cos(theta);
-            vz = 5*R_prim*np.random.normal(0, 1)
-            bodies.append(Body(5,x,y,z, vx, vy, vz))
-        bodies.append(Body(5e2,20 * L / 2,20 * L / 4,20 * L / 8, -0, -0, -0))
+                vx = -20*R_prim*np.sin(theta);
+                vy = 20*R_prim*np.cos(theta);
+                vz = 5*R_prim*np.random.normal(0, 1)
+                bodies.append(Body(5,x,y,z, vx, vy, vz))
+            bodies.append(Body(5e2,20 * L / 2,20 * L / 4,20 * L / 8, -0, -0, -0))
+        if groups > 2:
+            for i in range(int(num_bodies / 3)):
+                R = 10*np.random.uniform(0, L/4.0);
+                theta = np.random.uniform(0, 2*np.pi);
+                x = R*np.cos(theta);
+                y = 0.25*R*np.sin(theta);
+                z = np.random.normal(0, L/32)
+                R_prim = np.sqrt((x - L/2.0) ** 2 + (y - L/2.0) ** 2);
+                
+                x -= 20 * L / 2
+                y -= 20 * L / 4
+                z -= 20 * L / 8
 
-        for i in range(int(num_bodies / 3)):
-            R = 10*np.random.uniform(0, L/4.0);
-            theta = np.random.uniform(0, 2*np.pi);
-            x = R*np.cos(theta);
-            y = 0.25*R*np.sin(theta);
-            z = np.random.normal(0, L/32)
-            R_prim = np.sqrt((x - L/2.0) ** 2 + (y - L/2.0) ** 2);
-            
-            x -= 20 * L / 2
-            y -= 20 * L / 4
-            z -= 20 * L / 8
-
-            vx = -20*R_prim*np.sin(theta);
-            vy = 20*R_prim*np.cos(theta);
-            vz = 5*R_prim*np.random.normal(0, 1)
-            bodies.append(Body(5,x,y,z, vx, vy, vz))
-        bodies.append(Body(5e2, -20*L/2, -20*L/4, -20*L/8, 0, 0, 0))
+                vx = -20*R_prim*np.sin(theta);
+                vy = 20*R_prim*np.cos(theta);
+                vz = 5*R_prim*np.random.normal(0, 1)
+                bodies.append(Body(5,x,y,z, vx, vy, vz))
+            bodies.append(Body(5e2, -20*L/2, -20*L/4, -20*L/8, 0, 0, 0))
 
     writeInitial(bodies)
 

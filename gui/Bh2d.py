@@ -176,8 +176,8 @@ def step(bodies):
         #     body.vy *=-1
         #     del body
 
-def main():
-    num_iters = 1000
+def main(num_iters, num_bodies):
+   # num_iters = 1000
     pos_hist = []
     
     bodies = []
@@ -286,12 +286,12 @@ def writeOutput(result):
     result = result.reshape((result.shape[0], result.shape[1] * result.shape[2]))
     np.savetxt(f'../output/result-{dateString}.csv', result, delimiter=',')
 
-trajectory = main()
-plot_trajectories(trajectory)
+# trajectory = main()
+# plot_trajectories(trajectory)
 
 
-writeOutput(trajectory)
-plt.show()
+# writeOutput(trajectory)
+# plt.show()
 
 
 
@@ -302,3 +302,79 @@ plt.show()
 #     plt.scatter(body.px, body.py,label = i, s = 1000*body.mass)
 # plt.legend()
 # plt.show()
+from time import time
+def timeit(params=((10, 2), (10, 3), (10, 5), (10, 10), (10, 20), (10, 50), (10, 75), (10, 100), (10, 1000), (10, 10000), (10, 20000), (10, 40000), (10, 50000), (10, 100000)), n_average=2):
+    itters = 1
+    elapsed = []
+    for _, n in params:
+        timeaccum = 0
+        for k in range(n_average):
+            start = time()
+            merged = main(itters, n)
+            end   = time()
+            timeaccum += end-start
+            print("finished ", k , itters, n)
+        elapsed.append(timeaccum / n_average)
+
+    return elapsed
+
+
+plt.rcParams.update({'font.size': 24})
+
+
+
+
+results = timeit()
+x2 = [2,3,5,10,20,50, 75,100, 1000, 10000, 20000, 40000]
+
+
+# Y = np.log(results)
+# X = np.asarray([(np.log(np.log(item)), np.log(item), 1) for item in x2])
+
+def complex():
+    # x = np.linspace(2, 20000, 20000)
+    # fn = lambda x : 1e-6 * x ** 1.2 * np.log(x) ** 2.4
+    # print(x[0])
+    # Y = np.log(fn(x))
+
+    # X = np.asarray([[np.log(np.log(item)), np.log(item), 1] for item in x])
+    # X = x[np.newaxis].T
+    # print(X.shape)
+    # print(Y)
+    # print(X)
+    # print(Y)
+    # exit()
+    Y = np.log(results)
+    X = np.asarray([(np.log(np.log(item)), np.log(item), 1) for item in x2])
+
+    c, b, a = np.linalg.lstsq(X, Y, rcond = None)[0]
+    fn = lambda n : np.exp(a) * n ** b * np.log(n) ** c
+    print(np.exp(a), b, c)
+    x = np.linspace(0, 40000, 40000)
+    plt.plot(x, fn(x), label = f"{np.exp(a):.2f}n^{b:.2f}log(n)^{c:.2f}")
+    plt.scatter(x2, results, label = "Nieve Run Time")
+    plt.title("N-body Scaling with N (10 itterations) - Barnes Hut")
+    plt.xlabel("Bodies")
+    plt.ylabel("Run Time (s)")
+    plt.legend()
+    plt.show()
+complex()
+exit()
+
+def anlogn():
+    Y = results
+    X = np.asarray([n * np.log(n) for n in x2])[np.newaxis].T
+    print(X)
+
+    a = np.linalg.lstsq(X, Y, rcond = None)[0][0]
+    print(a)
+    fn = lambda n : a * n * np.log(n)
+    x = np.linspace(0, 40000, 40000)
+    plt.plot(x, fn(x), label = f"{a:.5f}nlog(n)")
+    plt.scatter(x2, results, label = "Run Time")
+    plt.title("N-body Scaling with N (10 itterations) - Barnes Hut")
+    plt.xlabel("Bodies")
+    plt.ylabel("Run Time (s)")
+    plt.legend()
+    plt.show()
+anlogn()

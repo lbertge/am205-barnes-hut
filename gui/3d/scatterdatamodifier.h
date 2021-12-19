@@ -35,7 +35,7 @@
 #include <QtGui/QFont>
 #include <QColor>
 #include <QtGlobal>
-
+#include <QSharedMemory>
 class ScatterDataModifier : public QObject
 {
     Q_OBJECT
@@ -55,6 +55,7 @@ public:
     void toggleItemCount();
     void start();
     void animate();
+    void reset();
 
 public Q_SLOTS:
     void changeStyle(int style);
@@ -69,19 +70,17 @@ Q_SIGNALS:
     void fontChanged(const QFont &font);
 
 private:
-    QVector3D randVector();
     Q3DScatter *m_graph;
     int m_fontSize;
     QAbstract3DSeries::Mesh m_style;
     bool m_smooth;
-    int m_itemCount;
-    float m_curveDivider;
     int index;
     int bodyCount;
     int itterCount;
     QVector<QVector<QVector3D>> data;
     QScatterDataArray *dataArray2;
     QVector<Qt::GlobalColor> colors;
+    QSharedMemory sharedMemory;
 };
 
 #endif

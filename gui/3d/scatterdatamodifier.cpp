@@ -44,23 +44,18 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-
+#include <QBuffer>
 #include <QPainter>
 #include <QPaintEvent>
 //#define RANDOM_SCATTER // Uncomment this to switch to random scatter
 
-const int numberOfItems = 3600;
-const float curveDivider = 3.0f;
-const int lowerNumberOfItems = 900;
-const float lowerCurveDivider = 0.75f;
+
 
 ScatterDataModifier::ScatterDataModifier(Q3DScatter *scatter)
     : m_graph(scatter),
       m_fontSize(40.0f),
       m_style(QAbstract3DSeries::MeshSphere),
-      m_smooth(true),
-      m_itemCount(lowerNumberOfItems),
-      m_curveDivider(lowerCurveDivider)
+      m_smooth(true)
 {
     //! [0]
     m_graph->activeTheme()->setType(Q3DTheme::ThemeEbony);
@@ -83,16 +78,17 @@ ScatterDataModifier::ScatterDataModifier(Q3DScatter *scatter)
 
     colors.push_back(Qt::darkRed);
 
-//    QFile file("/Users/alexkashi/Documents/Processing/barnesHut/result2.csv");
-//    QFile file("/Users/alexkashi/Harvard/AM205/am205-barnes-hut/output/result-2021-12-14-22-31.csv");
-        QFile file("C://Users//AlexKashi//Harvard//AM205//am205-barnes-hut//output//result-2021-12-15-03-49.csv");
-    if(!file.open(QIODevice::ReadOnly)) {
-//            QDebug() << "Error reading file";
+        QFile file("C://Users//AlexKashi//Harvard//AM205//am205-barnes-hut//output//result-1000n-60000b-3g-L.csv");
+
+        if(!file.open(QIODevice::ReadOnly)) {
+            qDebug() << "Error reading file";
     }
 
     QTextStream in(&file);
     int count = 0;
 
+    float vMax = 0;
+    float vMin = 1000;
     float minX=0, maxX=0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
     while(!in.atEnd()) {
         QString line = in.readLine();
@@ -105,7 +101,7 @@ ScatterDataModifier::ScatterDataModifier(Q3DScatter *scatter)
             StrToFloat >> tmp_x;
             std::istringstream StrToFloat2(pieces.at(i+1).toStdString());
             StrToFloat2 >> tmp_y;
-
+             tmp_z = 0;
             std::istringstream StrToFloat3(pieces.at(i+2).toStdString());
             StrToFloat3 >> tmp_z;
 
@@ -118,12 +114,12 @@ ScatterDataModifier::ScatterDataModifier(Q3DScatter *scatter)
 
             bodyCount++;
             timePoint.append(QVector3D(tmp_x,tmp_y,tmp_z));
+
         }
-//        if(itterCount > 1000){
-//            break;
-//        }
+
         itterCount++;
         data.append(timePoint);
+
     }
     file.close();
 
@@ -132,7 +128,7 @@ ScatterDataModifier::ScatterDataModifier(Q3DScatter *scatter)
     QScatter3DSeries *series = new QScatter3DSeries(proxy);
     series->setItemLabelFormat(QStringLiteral("@xTitle: @xLabel @yTitle: @yLabel @zTitle: @zLabel"));
     series->setMeshSmooth(m_smooth);
-    series->setItemSize(0.1f);
+    series->setItemSize(0.001f);
     m_graph->addSeries(series);
     m_graph->axisX()->setMin(minX);
     m_graph->axisX()->setMax(maxX);
@@ -140,30 +136,36 @@ ScatterDataModifier::ScatterDataModifier(Q3DScatter *scatter)
     m_graph->axisY()->setMax(maxY);
     m_graph->axisZ()->setMin(minZ);
     m_graph->axisZ()->setMax(maxZ);
+
+//    int B = 10;
+//    m_graph->axisX()->setMin(-B);
+//    m_graph->axisX()->setMax(B);
+//    m_graph->axisY()->setMin(-B);
+//    m_graph->axisY()->setMax(B);
+//    m_graph->axisZ()->setMin(-B);
+//    m_graph->axisZ()->setMax(B);
+
+
+
+
     m_graph->axisX()->setLabelFormat(" ");
     m_graph->axisY()->setLabelFormat(" ");
     m_graph->axisZ()->setLabelFormat(" ");
 
-    m_graph->addSeries(new QScatter3DSeries);
-    m_graph->addSeries(new QScatter3DSeries);
-    m_graph->addSeries(new QScatter3DSeries);
-    m_graph->addSeries(new QScatter3DSeries);
-    m_graph->addSeries(new QScatter3DSeries);
-
-
-//    dataArray = new QScatterDataArray;
-//    addData();
-    //! [3]
+    sharedMemory.attach();
 }
 
 ScatterDataModifier::~ScatterDataModifier()
 {
     delete m_graph;
+    sharedMemory.unlock();
+    sharedMemory.detach();
 }
 
 //! [8]
 void ScatterDataModifier::changeStyle(int style)
 {
+    index = 0;
     QComboBox *comboBox = qobject_cast<QComboBox *>(sender());
     if (comboBox) {
         m_style = QAbstract3DSeries::Mesh(comboBox->itemData(style).toInt());
@@ -190,35 +192,20 @@ void ScatterDataModifier::changeTheme(int theme)
 void ScatterDataModifier::animate()
 {
 
+    QScatterDataArray *dataArray = new QScatterDataArray;
+     dataArray->resize(bodyCount);
+     QScatterDataItem *ptrToDataArray = &dataArray->first();
 
 
-    for (int i = 0; i < bodyCount; i++) {
-        QScatterDataArray *dataArray = new QScatterDataArray;
-
-        *dataArray << data[index % data.length()][i];
-        dataArray->resize(1);
-         m_graph->seriesList().at(i)->dataProxy()->resetArray(dataArray);
-            m_graph->seriesList().at(i)->setMeshSmooth(true);
-        m_graph->seriesList().at(i)->setItemSize(0.1f);
-        m_graph->seriesList().at(i)->setBaseColor(colors[i% colors.length()]);
-
-//        QScatterDataItem *ptrToDataArray = &dataArray->first();
-//           scatter.seriesList().at(1)->setBaseColor(Qt::green);
-
-//        ptrToDataArray->setPosition(data[index % data.length()][i]);
-//        ptrToDataArray++;
-    }
-//    m_graph->seriesList().at(0)->dataProxy()->resetArray(dataArray);
-    index +=500;
-
-//    QLinearGradient linearGrad(QPointF(100, 100), QPointF(200, 200));
-//    linearGrad.setColorAt(0, Qt::blue);
-//    linearGrad.setColorAt(1, Qt::red);
-
-//    m_graph->seriesList().at(0)->setBaseGradient(linearGrad);
-//    m_graph->seriesList().at(0)->setColorStyle(Q3DTheme::ColorStyle::ColorStyleObjectGradient);
-
+     for (int i = 0; i < bodyCount; i++) {
+         ptrToDataArray->setPosition(data[index % data.length()][i]);
+         ptrToDataArray++;
+     }
+     m_graph->seriesList().at(0)->dataProxy()->resetArray(dataArray);
+     index +=1;
 }
+
+
 void ScatterDataModifier::changePresetCamera()
 {
     static int preset = Q3DCamera::CameraPresetFrontLow;
@@ -234,11 +221,15 @@ void ScatterDataModifier::changeLabelStyle()
     m_graph->activeTheme()->setLabelBackgroundEnabled(!m_graph->activeTheme()->isLabelBackgroundEnabled());
 }
 
+void ScatterDataModifier::reset(){
+    index = 0;
+}
+
 void ScatterDataModifier::changeFont(const QFont &font)
 {
     QFont newFont = font;
 
-    newFont.setPointSizeF(0.001);
+    newFont.setPointSizeF(0.0001);
     m_graph->activeTheme()->setFont(newFont);
 }
 
@@ -263,6 +254,5 @@ void ScatterDataModifier::setGridEnabled(int enabled)
 {
     m_graph->activeTheme()->setGridEnabled((bool)enabled);
 }
-//! [8]
 
 
